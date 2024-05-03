@@ -60,9 +60,6 @@ async def delete_product_callback(callback: types.CallbackQuery, session: AsyncS
     await callback.message.answer("Товар удален!")
 
 
-
-
-
 @admin_router.callback_query(StateFilter(None), F.data.startswith("change_"))
 async def change_product_callback(
     callback: types.CallbackQuery, state: FSMContext, session: AsyncSession

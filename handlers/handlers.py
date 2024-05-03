@@ -18,7 +18,7 @@ async def cmd_start(message: Message):
 
 # @router.message(Command('menu'))
 # async def menu(message: Message):
-#     await bot.edit_message_reply_markup( reply_markup=kb.main)
+#     await message.message.edit_text(reply_markup=kb.main)
 
 
 @router.message(Command('contact'))
@@ -36,6 +36,11 @@ async def catalog(message: Message):
     await message.answer('Выберите как хотите связаться с нами', reply_markup=kb.contact)
 
 
+@router.message(Command('about'))
+async def about(message: Message):
+    await message.answer('Добро пожаловать в мой мир!\n\n'
+                        'Меня зовут Артем Шамин, заказчики называют меня  «Артем Правша».\n'
+                        'Искусство, комфорт и качество – вот то, что я вкладываю в каждый предмет мебели, который создаю.')
 
 
 
@@ -77,13 +82,15 @@ async def category(callback: CallbackQuery):
 
 @router.callback_query(F.Text(startswith="description"))
 async def description(callback: CallbackQuery):
-    # Разбираем callback_data для получения item_id
     _, item_id = callback.data.split(':')
-    item_id = int(item_id)  # Преобразуем item_id в число
+    item_id = int(item_id)
 
-    # Запрос к базе данных для получения описания товара по item_id
     item_description = await rq.get_item_description(item_id)
 
-    # Отправляем описание пользователю
     await callback.message.answer(item_description)
 
+
+@router.callback_query(F.data.startswith('to_main'))
+async def to_main(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.edit_text('Выберите категорию', reply_markup=await kb.categories())
