@@ -30,7 +30,7 @@ async def orm_get_product(session: AsyncSession, product_id: int):
 
 async def orm_update_product(session: AsyncSession, product_id: int, data):
     query = update(Item).where(Item.id == product_id).values(
-        # category=data['category'],
+        category=data['category'],
         name=data["name"],
         description=data["description"],
         price=float(data["price"]),
@@ -39,7 +39,7 @@ async def orm_update_product(session: AsyncSession, product_id: int, data):
     await session.commit()
 
 
-async def orm_delete_product(session: AsyncSession, product_id: int):
-    query = delete(Item).where(Item.id == product_id)
+async def orm_delete_product(session: AsyncSession, item_id: int):
+    query = delete(Item).where(Item.id == item_id)
     await session.execute(query)
     await session.commit()

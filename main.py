@@ -9,6 +9,7 @@ from database.models import async_main
 from config.command_list import private
 
 
+
 async def main():
     await async_main()
     load_dotenv()

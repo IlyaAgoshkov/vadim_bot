@@ -44,11 +44,6 @@ async def about(message: Message):
 
 
 
-# @router.message(Command('admin'))
-# async def admin_p(message: Message):
-#     for admin_id in ADMIN_ID:
-#         if message.from_user.id == admin_id:
-#             await message.answer('Вы вошли как администратор', reply_markup=kb.admin_panel)
 
 
 @router.message(F.photo)
@@ -64,7 +59,7 @@ async def category(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith('item_'))
-async def category(callback: CallbackQuery):
+async def item(callback: CallbackQuery):
     item_data = await rq.get_item(callback.data.split('_')[1])
     await callback.answer()
     if item_data.image:
@@ -80,14 +75,14 @@ async def category(callback: CallbackQuery):
         await callback.message.answer(message_text, reply_markup=kb.item)
 
 
-@router.callback_query(F.Text(startswith="description"))
-async def description(callback: CallbackQuery):
-    _, item_id = callback.data.split(':')
-    item_id = int(item_id)
-
-    item_description = await rq.get_item_description(item_id)
-
-    await callback.message.answer(item_description)
+# @router.callback_query(F.Text(startswith="description"))
+# async def description(callback: CallbackQuery):
+#     _, item_id = callback.data.split(':')
+#     item_id = int(item_id)
+#
+#     item_description = await rq.get_item_description(item_id)
+#
+#     await callback.message.answer(item_description)
 
 
 @router.callback_query(F.data.startswith('to_main'))
