@@ -46,9 +46,9 @@ async def about(message: Message):
 
 
 
-@router.message(F.photo)
-async def get_photo_id(message: Message):
-    await message.answer(f'ID фото: {message.photo[-1].file_id}')
+# @router.message(F.photo)
+# async def get_photo_id(message: Message):
+#     await message.answer(f'ID фото: {message.photo[-1].file_id}')
 
 
 @router.callback_query(F.data.startswith('category_'))
@@ -75,14 +75,14 @@ async def item(callback: CallbackQuery):
         await callback.message.answer(message_text, reply_markup=kb.item)
 
 
-# @router.callback_query(F.Text(startswith="description"))
-# async def description(callback: CallbackQuery):
-#     _, item_id = callback.data.split(':')
-#     item_id = int(item_id)
-#
-#     item_description = await rq.get_item_description(item_id)
-#
-#     await callback.message.answer(item_description)
+@router.callback_query(F.Text(startswith="description"))
+async def description(callback: CallbackQuery):
+    _, item_id = callback.data.split(':')
+    item_id = int(item_id)
+
+    item_description = await rq.get_item_description(item_id)
+
+    await callback.message.answer(item_description)
 
 
 @router.callback_query(F.data.startswith('to_main'))

@@ -9,7 +9,7 @@ async def orm_add_product(session: AsyncSession, data: dict):
         category=data['category'],
         name=data["name"],
         description=data["description"],
-        price=float(data["price"]),
+        price=data["price"],
         image=data["image"],
     )
     session.add(obj)
