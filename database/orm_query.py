@@ -1,7 +1,7 @@
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Item
+from database.models import Item, Category
 
 
 async def orm_add_product(session: AsyncSession, data: dict):
@@ -42,4 +42,14 @@ async def orm_update_product(session: AsyncSession, product_id: int, data):
 async def orm_delete_product(session: AsyncSession, item_id: int):
     query = delete(Item).where(Item.id == item_id)
     await session.execute(query)
+    await session.commit()
+
+
+async def orm_delete_category(session: AsyncSession, category_id: int):
+    delete_items_query = delete(Item).where(Item.category == category_id)
+    await session.execute(delete_items_query)
+
+    delete_category_query = delete(Category).where(Category.id == category_id)
+    await session.execute(delete_category_query)
+
     await session.commit()

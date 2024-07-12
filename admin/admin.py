@@ -10,33 +10,45 @@ from sqlalchemy import select
 from config.config import ADMIN_ID
 import database.requests as rq
 from admin import admin_kb
-from database.orm_query import orm_delete_product, orm_add_product
+from database.orm_query import orm_delete_product, orm_add_product, orm_delete_category
 from database.models import Item, AsyncSessionLocal, Category
 from database.models import async_session
 
 admin_router = Router()
-
 
 @admin_router.message(Command("admin"))
 async def admin_features(message: types.Message):
     if message.from_user.id in ADMIN_ID:
         await message.answer("Что хотите сделать?", reply_markup=admin_kb.admin_panel)
 
-
 @admin_router.message(F.text == 'Удалить товар')
 async def catalog(message: Message):
     if message.from_user.id in ADMIN_ID:
-        await message.answer('Выберите категорию', reply_markup=await admin_kb.categories())
+        await message.answer('Выберите категорию', reply_markup=await admin_kb.categories_to_delete_item())
+
+@admin_router.message(F.text == 'Удалить категорию и товары в ней')
+async def delete_category_start(message: Message):
+    if message.from_user.id in ADMIN_ID:
+        await message.answer('Выберите категорию для удаления', reply_markup=await admin_kb.categories())
 
 @admin_router.callback_query(F.data.startswith('categoryadmin_'))
-async def category(callback: CallbackQuery):
-    await callback.answer()
-    await callback.message.edit_text('Выберите товар для удаления',
-                                     reply_markup=await admin_kb.items(callback.data.split('_')[1]))
+async def delete_category(callback: CallbackQuery):
+    category_id = int(callback.data.split('_')[1])
+    async with async_session() as session:
+        async with session.begin():
+            await orm_delete_category(session, category_id)
+
+    await callback.answer("Категория и все товары в ней удалены.")
+    await callback.message.edit_text("Категория и все товары в ней были успешно удалены.")
+
+@admin_router.callback_query(F.data.startswith('itemcategory_'))
+async def item_category(callback: CallbackQuery):
+    category_id = int(callback.data.split('_')[1])
+    await callback.message.edit_text('Выберите товар для удаления', reply_markup=await admin_kb.items(category_id))
 
 @admin_router.callback_query(F.data.startswith('itemadmin_'))
 async def item(callback: CallbackQuery):
-    item_id = callback.data.split('_')[1]
+    item_id = int(callback.data.split('_')[1])
     item_data = await rq.get_item(item_id)
     await callback.answer()
     if item_data.image:
@@ -48,9 +60,8 @@ async def item(callback: CallbackQuery):
     else:
         message_text = (f'Название: {item_data.name}\n'
                         f'Описание: {item_data.description}\n'
-                        f'Цена: {item_data.price} руб.\n\n'                                                 )
+                        f'Цена: {item_data.price} руб.\n\n')
         await callback.message.answer(message_text, reply_markup=admin_kb.item_delete(item_id))
-
 
 @admin_router.callback_query(F.data.startswith('deleteitem_'))
 async def delete_item(callback: CallbackQuery):
@@ -70,6 +81,10 @@ async def delete_item(callback: CallbackQuery):
         await callback.message.answer("Неизвестный тип сообщения, но товар был удален.")
 
 
+@admin_router.callback_query(F.data.startswith('tomainadmin_'))
+async def to_main(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.edit_text('Выберите товар для удаления', reply_markup=await admin_kb.categories_to_delete_item())
 class AddProductForm(StatesGroup):
     category = State()
     name = State()
@@ -120,7 +135,7 @@ async def process_price(message: types.Message, state: FSMContext):
 @admin_router.message(AddProductForm.image)
 async def process_image(message: types.Message, state: FSMContext):
     if message.content_type == ContentType.PHOTO:
-        file_id= message.photo[-1].file_id
+        file_id = message.photo[-1].file_id
         await state.update_data(image=file_id)
 
         user_data = await state.get_data()

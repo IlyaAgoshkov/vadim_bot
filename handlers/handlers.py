@@ -12,20 +12,23 @@ router = Router()
 async def cmd_start(message: Message):
     await rq.set_user(message.from_user.id)
     await message.answer(f'{message.from_user.full_name}, добро пожаловать в мой мир! \n'
-                         'Меня зовут Артем Шамин, заказчики называют меня  «Артем Правша». \n \n'
-                         'Искусство, комфорт и качество – вот то, что я вкладываю в каждый предмет мебели, который создаю.',reply_markup=kb.main)
+                         'Меня зовут Вадим, люблю делать всякие приколные штуки». \n \n'
+                         'Заглядывай в каталог и ознакомься ', reply_markup=kb.main)
 
 
-# @router.message(Command('menu'))
-# async def menu(message: Message):
-#     await message.message.edit_text(reply_markup=kb.main)
+@router.message(Command('catalog'))
+async def menu(message: Message):
+    await message.answer('Выберите категорию товара', reply_markup=await kb.categories())
 
 
 @router.message(Command('contact'))
 async def menu(message: Message):
     await message.answer('Выберите, как хотите связаться с нами:', reply_markup=kb.contact)
 
-
+@router.message(Command('id'))
+async def send_user_id(message: Message):
+    user_id = message.from_user.id
+    await message.reply(f"Твой ID: {user_id}")
 @router.message(F.text == 'Каталог')
 async def catalog(message: Message):
     await message.answer('Выберите категорию товара', reply_markup=await kb.categories())
@@ -38,9 +41,8 @@ async def catalog(message: Message):
 
 @router.message(Command('about'))
 async def about(message: Message):
-    await message.answer('Добро пожаловать в мой мир!\n\n'
-                        'Меня зовут Артем Шамин, заказчики называют меня  «Артем Правша».\n'
-                        'Искусство, комфорт и качество – вот то, что я вкладываю в каждый предмет мебели, который создаю.')
+    await message.answer('________\n\n'
+                        '_____\n')
 
 
 
@@ -51,7 +53,7 @@ async def about(message: Message):
 #     await message.answer(f'ID фото: {message.photo[-1].file_id}')
 
 
-@router.callback_query(F.data.startswith('category_'))
+@router.callback_query(F.data.startswith('categoryuser_'))
 async def category(callback: CallbackQuery):
     await callback.answer()
     await callback.message.edit_text('Выберите товар по категории',

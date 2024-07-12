@@ -12,7 +12,7 @@ async def categories():
     all_categories = await get_categories()
     keyboard = InlineKeyboardBuilder()
     for category in all_categories:
-        keyboard.add(InlineKeyboardButton(text=category.name, callback_data=f"category_{category.id}"))
+        keyboard.add(InlineKeyboardButton(text=category.name, callback_data=f"categoryuser_{category.id}"))
     return keyboard.adjust(2).as_markup()
 
 
@@ -26,10 +26,10 @@ async def items(category_id):
 
 
 contact = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ВКонтакте', callback_data="vk", url='https://vk.com/artempravsha'),
-     InlineKeyboardButton(text='Telegram', callback_data='tg', url='https://t.me/artempravsha')],
-    [InlineKeyboardButton(text='WhatsApp', callback_data="WhatsApp", url='https://wa.me/+79186626909'),
-     InlineKeyboardButton(text='Наш сайт', callback_data="Site", url='https://artempravsha.ru/')]])
+    [InlineKeyboardButton(text='ВКонтакте', callback_data="vk", url=''),
+     InlineKeyboardButton(text='Telegram', callback_data='tg', url='')],
+    [InlineKeyboardButton(text='WhatsApp', callback_data="WhatsApp", url=''),
+     InlineKeyboardButton(text='Наш сайт', callback_data="Site", url='')]])
 
 item = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🛒В корзину', callback_data='add to cart')],
